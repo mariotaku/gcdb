@@ -33,8 +33,7 @@ def fetch_games():
         values = list(map(lambda game: (game.id, game.name, game.cover, game.updated_at), games))
         cur = database.cursor()
         cur.executemany('''
-INSERT INTO games(id, name, cover, updated_at)
-VALUES (?, ?, ?, ?)
+INSERT INTO games(id, name, cover, updated_at) VALUES (?, ?, ?, ?)
 ON CONFLICT DO UPDATE SET name=excluded.name,
                           cover=excluded.cover,
                           updated_at=excluded.updated_at
@@ -88,10 +87,9 @@ def fetch_assets():
 
 if __name__ == '__main__':
     v, = database.execute('SELECT sqlite_version()').fetchone()
-    if version.parse(v) < version.parse('3.24'):
-        print(f'SQLite 3.24 and above is required! (You have {v})')
+    v_wants = '3.34.1'
+    if version.parse(v) < version.parse(v_wants):
+        print(f'SQLite {v_wants} and above is required! (You have {v})')
         exit(1)
-    else:
-        print(f'SQLite version: {v}')
     fetch_games()
     fetch_covers()
