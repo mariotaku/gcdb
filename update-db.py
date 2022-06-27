@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from concurrent.futures import ThreadPoolExecutor
 from os import path
-
+from packaging import version
 import requests
 
 from api import Client
@@ -30,10 +30,13 @@ def fetch_games():
             break
         values = list(map(lambda game: (game.id, game.name, game.cover, game.updated_at), games))
         cur = database.cursor()
-        cur.executemany('INSERT INTO games(id, name, cover, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT DO UPDATE '
-                        'SET name=excluded.name, cover=excluded.cover, updated_at=excluded.updated_at '
-                        'WHERE id=excluded.id',
-                        values)
+        cur.executemany('''
+INSERT INTO games(id, name, cover, updated_at)
+VALUES (?, ?, ?, ?)
+ON CONFLICT DO UPDATE SET name=excluded.name,
+                          cover=excluded.cover,
+                          updated_at=excluded.updated_at
+WHERE id = excluded.id'''.strip(), values)
         database.commit()
         begin = games[-1].id
 
@@ -82,5 +85,9 @@ def fetch_assets():
 
 
 if __name__ == '__main__':
+    v, = database.execute('SELECT sqlite_version()').fetchone()
+    if version.parse(v) < version.parse('3.24'):
+        print(f'SQLite 3.24 and above is required! (You have {v})')
+        exit(1)
     fetch_games()
     fetch_covers()
