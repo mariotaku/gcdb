@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import os
 from concurrent.futures import ThreadPoolExecutor
 from os import path
-from packaging import version
+
 import requests
+from packaging import version
 
 from api import Client
 from db import Database, Schema

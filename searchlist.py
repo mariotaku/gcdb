@@ -4,7 +4,9 @@ import os
 
 import regex as re
 
-from updater import database
+from db import Database
+
+database = Database('out/gcdb.sqlite3')
 
 
 def to_item(row):
