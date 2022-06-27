@@ -91,5 +91,7 @@ if __name__ == '__main__':
     if version.parse(v) < version.parse('3.24'):
         print(f'SQLite 3.24 and above is required! (You have {v})')
         exit(1)
+    else:
+        print(f'SQLite version: {v}')
     fetch_games()
     fetch_covers()
