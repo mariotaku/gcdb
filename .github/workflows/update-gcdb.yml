@@ -17,6 +17,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: fregante/setup-git-user@v1
       - name: Copy Back Output
         uses: actions/checkout@v3
         with:
@@ -43,3 +44,4 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: out
+          ssh-key: ${{ secrets.PAGES_DEPLOY_KEY }}
