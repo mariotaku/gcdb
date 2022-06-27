@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 from concurrent.futures import ThreadPoolExecutor
 from os import path
 from packaging import version
@@ -12,6 +13,7 @@ schema = Schema(2, {
     1: 'migrations/1_base.sql',
     2: 'migrations/2_updated_at.sql'
 })
+
 database = Database('out/gcdb.sqlite3', schema)
 
 

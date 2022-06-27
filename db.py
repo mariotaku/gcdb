@@ -1,5 +1,6 @@
+import os
 import sqlite3
-from os import PathLike
+from os import PathLike, path
 from sqlite3 import Connection, Cursor
 from typing import Dict, Optional
 
@@ -24,6 +25,7 @@ class Database:
     conn: Connection
 
     def __init__(self, name: str, schema: Optional[Schema] = None):
+        os.makedirs(path.dirname(name), exist_ok=True)
         self.conn = sqlite3.connect(name)
         version = self.schema_version
         if schema and version < schema.version:
