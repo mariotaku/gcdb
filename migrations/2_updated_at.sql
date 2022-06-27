@@ -1,0 +1,3 @@
+ALTER TABLE games
+    ADD COLUMN updated_at INT DEFAULT 0
+;

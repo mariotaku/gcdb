@@ -13,6 +13,7 @@ class Game:
     id: int
     name: int
     cover: str
+    updated_at: int
 
 
 @dataclass
@@ -51,15 +52,16 @@ class Client:
         with open('credential.yaml') as f:
             self.creds = ClientCredential(**yaml.safe_load(f))
 
-    def get_games(self, after: int or None = None, limit: int = 500) -> List[Game]:
+    def get_games(self, after: int or None = None, limit: int = 500, updated_at: int = 0) -> List[Game]:
         fields = map(lambda field: field.name, dataclasses.fields(Game))
-        if after is None:
-            after = 0
+        where = f'version_parent = null & cover != null'
+        if after:
+            where = f'{where} & id > {after}'
+        if updated_at > 0:
+            where = f'{where} & updated_at > {updated_at}'
         with self._rate_limiter:
             resp = requests.post('https://api.igdb.com/v4/games', headers=self.authorization_header(),
-                                 data=f'fields {",".join(fields)}; '
-                                      f'where version_parent = null & cover != null & id > {after}; '
-                                      f'limit {limit}; sort id;')
+                                 data=f'fields {",".join(fields)}; where {where}; limit {limit}; sort id;')
         if not resp.ok:
             raise Exception(resp.json())
         return list(map(lambda item: Game(**item), resp.json()))

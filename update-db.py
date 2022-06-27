@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 from concurrent.futures import ThreadPoolExecutor
 from os import path
 
@@ -9,25 +8,32 @@ from api import Client
 from db import Database, Schema
 
 client = Client()
-schema = Schema(1, {
+schema = Schema(2, {
     1: 'migrations/1_base.sql',
+    2: 'migrations/2_updated_at.sql'
 })
 database = Database('gcdb.sqlite3', schema)
 
 
 def fetch_games():
-    begin, = database.execute('SELECT MAX(id) FROM games').fetchone()
+    updated_at, = database.execute('SELECT MAX(updated_at) FROM games').fetchone()
+    begin = None
+    if not updated_at:
+        updated_at = 0
     while True:
         if begin:
             print(f'Fetching games after {begin}.')
         else:
             print(f'Fetching games (first page)')
-        games = client.get_games(begin)
+        games = client.get_games(begin, updated_at=updated_at)
         if len(games) == 0:
             break
-        values = list(map(lambda game: (game.id, game.name, game.cover), games))
+        values = list(map(lambda game: (game.id, game.name, game.cover, game.updated_at), games))
         cur = database.cursor()
-        cur.executemany('INSERT INTO games(id, name, cover) VALUES (?, ?, ?)', values)
+        cur.executemany('INSERT INTO games(id, name, cover, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT DO UPDATE '
+                        'SET name=excluded.name, cover=excluded.cover, updated_at=excluded.updated_at '
+                        'WHERE id=excluded.id',
+                        values)
         database.commit()
         begin = games[-1].id
 
