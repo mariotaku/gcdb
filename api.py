@@ -1,4 +1,5 @@
 import dataclasses
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Optional, List, Iterable
@@ -49,8 +50,11 @@ class Client:
     _rate_limiter = RateLimiter(max_calls=4, period=1.0)
 
     def __init__(self):
-        with open('credential.yaml') as f:
-            self.creds = ClientCredential(**yaml.safe_load(f))
+        if 'IGDB_CLIENT_ID' in os.environ and 'IGDB_CLIENT_SECRET' in os.environ:
+            self.creds = ClientCredential(os.environ['IGDB_CLIENT_ID'], os.environ['IGDB_CLIENT_SECRET'])
+        else:
+            with open('credential.yaml') as f:
+                self.creds = ClientCredential(**yaml.safe_load(f))
 
     def get_games(self, after: int or None = None, limit: int = 500, updated_at: int = 0) -> List[Game]:
         fields = map(lambda field: field.name, dataclasses.fields(Game))
