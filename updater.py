@@ -36,8 +36,7 @@ def fetch_games():
 INSERT INTO games(id, name, cover, updated_at) VALUES (?, ?, ?, ?)
 ON CONFLICT DO UPDATE SET name=excluded.name,
                           cover=excluded.cover,
-                          updated_at=excluded.updated_at
-WHERE id = excluded.id'''.strip(), values)
+                          updated_at=excluded.updated_at'''.strip(), values)
         database.commit()
         begin = games[-1].id
 
