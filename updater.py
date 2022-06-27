@@ -86,7 +86,7 @@ def fetch_assets():
 
 if __name__ == '__main__':
     v, = database.execute('SELECT sqlite_version()').fetchone()
-    v_wants = '3.34.1'
+    v_wants = '3.24'
     if version.parse(v) < version.parse(v_wants):
         print(f'SQLite {v_wants} and above is required! (You have {v})')
         exit(1)
