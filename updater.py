@@ -9,9 +9,8 @@ from api import Client
 from db import Database, Schema
 
 client = Client()
-schema = Schema(2, {
-    1: 'migrations/1_base.sql',
-    2: 'migrations/2_updated_at.sql'
+schema = Schema(1, {
+    1: 'migrations/1_base.sql'
 })
 
 database = Database('out/gcdb.sqlite3', schema)
@@ -32,11 +31,7 @@ def fetch_games():
             break
         values = list(map(lambda game: (game.id, game.name, game.cover, game.updated_at), games))
         cur = database.cursor()
-        cur.executemany('''
-INSERT INTO games(id, name, cover, updated_at) VALUES (?, ?, ?, ?)
-ON CONFLICT DO UPDATE SET name=excluded.name,
-                          cover=excluded.cover,
-                          updated_at=excluded.updated_at'''.strip(), values)
+        cur.executemany('INSERT INTO games(id, name, cover, updated_at) VALUES (?, ?, ?, ?)', values)
         database.commit()
         begin = games[-1].id
 
@@ -49,7 +44,7 @@ def fetch_covers():
         else:
             print(f'Fetching covers (first page)')
         rows = database.execute(f'SELECT id, cover FROM games WHERE id > {begin} AND '
-                                f'id NOT IN(SELECT game FROM covers) '
+                                f'cover NOT IN(SELECT id FROM covers) '
                                 f'ORDER BY id LIMIT 500').fetchall()
         if len(rows) == 0:
             break

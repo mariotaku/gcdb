@@ -50,7 +50,7 @@ class Client:
     _rate_limiter = RateLimiter(max_calls=4, period=1.0)
 
     def __init__(self):
-        if 'IGDB_CLIENT_ID' in os.environ and 'IGDB_CLIENT_SECRET' in os.environ:
+        if os.environ.get('IGDB_CLIENT_ID', None) and os.environ.get('IGDB_CLIENT_SECRET', None):
             self.creds = ClientCredential(os.environ['IGDB_CLIENT_ID'], os.environ['IGDB_CLIENT_SECRET'])
         else:
             with open('credential.yaml') as f:
