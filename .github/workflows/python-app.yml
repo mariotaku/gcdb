@@ -27,4 +27,6 @@ jobs:
       env:
         IGDB_CLIENT_ID: ${{ secrets.IGDB_CLIENT_ID }}
         IGDB_CLIENT_SECRET: ${{ secrets.IGDB_CLIENT_SECRET }}
-      run: python3.10 ./update-db.py
+      run: python3 ./updater.py
+    - name: Generate Data
+      run: python3 ./searchlist.py
